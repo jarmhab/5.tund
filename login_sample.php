@@ -1,9 +1,16 @@
 <?php
 
-	//ühenduse loomiseks kasuta
-	require_once("../config.php");
-	$database = "if15_jarmhab";
-	$mysqli = new mysqli($servername, $username, $password, $database);
+	//laeme funktsiooni faili
+	require_once("function.php");
+	
+	//kontrollin, kas kasutaja on sisse loginud
+	if(isset($_SESSION["id_from_db"])){
+		//suunan data lehele
+		header("Location: data.php");
+		
+		
+	}
+	
 	
   // muuutujad errorite jaoks
 	$email_error = "";
@@ -37,24 +44,11 @@
 				
 				$password_hash = hash("sha512", $password);
 				
-				$stmt = $mysqli->prepare("SELECT id, email FROM user_sample WHERE email=? AND password=?");
-				$stmt->bind_param("ss", $email, $password_hash);
-				
-				//paneme vastused muutujatesse
-				$stmt->bind_result($id_from_db, $id_from_db);
-				$stmt->execute();
-				
-				if($stmt->fetch()){
-					//leidis
-					echo "kasutaja id=".$id_from_db;
-										
-				}else{
-					//tyhi ei leidnud
-					echo "wrong password or email id";
-					
-				}
+				// functions php failis käivitan funktsiooni
+				 loginUser($email, $password_hash);
 			}
-		} // login if end
+		}
+	
     // *********************
     // ** LOO KASUTAJA *****
     // *********************
@@ -80,17 +74,11 @@
 				echo "<br>";
 				echo $password_hash;
 				
-				$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?, ?)");
-				echo $mysqli->error;
-				//echo $stmt->error;
-				
-				//asendame kysimärgid muutujate väärtustega
-				$stmt->bind_param("ss", $create_email, $password_hash);
-				$stmt->execute();
-				$stmt->close();
-      }
+				// functions.php failis käivina funktsiooni
+				createUser($create_email, $password_hash);
+			}
     } // create if end
-	}
+		}
   // funktsioon, mis eemaldab kõikvõimaliku üleliigse tekstist
   //trim võtab ära tühikud, tabid ja enterid. stripslashes - eemaldab tagurpidi kaldkriipsud. htmlspecialcpecialchars - eemladab scriptid(muudab koodi tekstiks)
   function cleanInput($data) {
@@ -100,8 +88,8 @@
   	return $data;
   }
   
-  //paneme ühenduse kinni
-  $mysqli->close();
+  
+  
 ?>
 <!DOCTYPE html>
 <html>
