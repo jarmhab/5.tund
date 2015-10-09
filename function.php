@@ -8,11 +8,7 @@
 	
 	//paneme sessiooni käima, saame kasutada $
 	session_start();
-	
-	
-	//paneme ühenduse kinni
-	
-	
+		
 	
 	//lisame kasutaja andmebaasi
 	function createUser($create_email, $password_hash){
@@ -25,7 +21,7 @@
 		$stmt->execute();
 		$stmt->close();
 		
-		$mysqli->close($create_email, $password_hash);		
+		$mysqli->close();		
 	}
 	
 	//logime sisse
@@ -55,6 +51,32 @@
 					$stmt->close();
 		
 					$mysqli->close();
+	}
+	
+	//autonumbrite tabeli jaoks
+	function createCarPlate($car_plate, $color){
+		// globals on muutuja kõigist php failidest mis on ühendatud
+		$mysqli = new mysqli($GLOBALS["servername"], $GLOBALS["server_username"], $GLOBALS["server_password"], $GLOBALS["database"]);
+		
+		$stmt = $mysqli->prepare("INSERT INTO car_plates (user_id, number_plate, color) VALUES (?, ?, ?)");
+		$stmt->bind_param("iss", $_SESSION["id_from_db"], $car_plate, $color);
+		
+		
+		if($stmt->execute()){
+			//see on tõene, kui sisestus ab'i õnnestus
+			$message = "Edukalt sisestatud andmebaasi";
+			
+			
+		}else {
+			// kui miski läks katki
+			echo $stmt->error;
+		}
+		
+		$stmt->close();
+		
+		$mysqli->close();		
+	
+		return $message;
 	}
 				
 			
